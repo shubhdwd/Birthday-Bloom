@@ -86,11 +86,12 @@ export function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-2 mb-6"
+            className="flex flex-col items-center justify-center gap-4 mb-6"
           >
-            <CakeIcon size={40} />
-            <span className="font-display text-xl md:text-2xl text-primary/80">Birthday Bloom</span>
-            <SparkleIcon size={28} />
+            <img src="/logotn.png" alt="Birthday Bloom Logo" className="w-32 md:w-40 drop-shadow-md" />
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-display text-xl md:text-2xl text-primary/80 tracking-wide">Birthday Bloom</span>
+            </div>
           </motion.div>
 
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-tight text-gradient mb-6">
