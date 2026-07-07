@@ -2,15 +2,17 @@ import { motion } from "framer-motion";
 import { SparkleIcon } from "./EmojiIcons";
 import { CatMessage } from "./CatMessage";
 import type { Relationship, SurpriseData } from "@/lib/types";
-import { getPhotoCaption, getFloatingNotes } from "@/lib/personalization";
+import { getMemoryCaptions, getFloatingNotes } from "@/lib/personalization";
 
 interface MemoriesGalleryProps {
   photos: SurpriseData["photos"];
   relationship: Relationship;
+  onPhotoView?: () => void;
 }
 
-export function MemoriesGallery({ photos, relationship }: MemoriesGalleryProps) {
+export function MemoriesGallery({ photos, relationship, onPhotoView }: MemoriesGalleryProps) {
   const notes = getFloatingNotes(relationship);
+  const fallbacks = getMemoryCaptions(relationship);
 
   return (
     <section className="relative px-6 py-24">
@@ -61,14 +63,8 @@ export function MemoriesGallery({ photos, relationship }: MemoriesGalleryProps) 
       {/* Scrapbook masonry grid */}
       <div className="mx-auto max-w-6xl columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6 [column-fill:_balance]">
         {photos?.map((photo, i) => {
-          // If Math.random() is used inside getPhotoCaption, we can just let it run.
-          // But to avoid flickers on re-render, we can just pass the index to seed the fallback.
-          const fallbackIndex = i % 3;
-          const fallbacks = [
-            "A beautiful memory ✨",
-            "A special moment 💜",
-            "One more reason to smile 🌸",
-          ];
+          // Use the personalized fallbacks based on relationship
+          const fallbackIndex = i % fallbacks.length;
           const displayCaption = photo.caption?.trim() ? photo.caption : fallbacks[fallbackIndex];
 
           return (
@@ -77,6 +73,7 @@ export function MemoriesGallery({ photos, relationship }: MemoriesGalleryProps) 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
+              onViewportEnter={() => onPhotoView && onPhotoView()}
               transition={{ duration: 0.7, delay: (i % 4) * 0.08 }}
               whileHover={{ scale: 1.04, rotate: 0, zIndex: 10 }}
               style={{ transform: `rotate(${photo.rotation}deg)` }}

@@ -6,6 +6,21 @@ import { SongUploader } from "./SongUploader";
 import { SuccessModal } from "./SuccessModal";
 import { CatMascot } from "@/components/birthday/CatMascot";
 import { SparkleIcon, GiftIcon, HeartIcon, CakeIcon } from "@/components/birthday/EmojiIcons";
+import {
+  ClassicGiftIcon,
+  RibbonGiftIcon,
+  CuteBoxIcon,
+  SparkleBoxIcon,
+  VintageBoxIcon,
+  GalaxyBoxIcon,
+  DefaultCatIcon,
+  SleepyCatIcon,
+  PlayfulCatIcon,
+  PrincessCatIcon,
+  GalaxyCatIcon,
+  AngelCatIcon,
+  WitchCatIcon,
+} from "./PremiumIcons";
 import { BirthdayExperience } from "@/components/birthday/BirthdayExperience";
 import { useUpload } from "@/hooks/useUpload";
 import type { SurpriseData } from "@/lib/types";
@@ -493,19 +508,23 @@ const THEMES: { value: Theme; label: string; colors: string[] }[] = [
   },
 ];
 
-const GIFT_STYLES: { value: GiftStyle; label: string }[] = [
-  { value: "classic", label: "Classic Gift" },
-  { value: "ribbon", label: "Ribbon Gift" },
-  { value: "cute-box", label: "Cute Box" },
-  { value: "sparkle-box", label: "Sparkle Box" },
+const GIFT_STYLES: { value: GiftStyle; label: string; icon: React.FC<any> }[] = [
+  { value: "classic", label: "Classic Gift", icon: ClassicGiftIcon },
+  { value: "ribbon", label: "Ribbon Gift", icon: RibbonGiftIcon },
+  { value: "cute-box", label: "Cute Box", icon: CuteBoxIcon },
+  { value: "sparkle-box", label: "Sparkle Box", icon: SparkleBoxIcon },
+  { value: "vintage-box", label: "Vintage Box", icon: VintageBoxIcon },
+  { value: "galaxy-box", label: "Galaxy Box", icon: GalaxyBoxIcon },
 ];
 
-const CAT_STYLES: { value: CatStyle; label: string }[] = [
-  { value: "default", label: "Default" },
-  { value: "sleepy", label: "Sleepy" },
-  { value: "playful", label: "Playful" },
-  { value: "princess", label: "Princess" },
-  { value: "galaxy", label: "Galaxy" },
+const CAT_STYLES: { value: CatStyle; label: string; icon: React.FC<any> }[] = [
+  { value: "default", label: "Default", icon: DefaultCatIcon },
+  { value: "sleepy", label: "Sleepy", icon: SleepyCatIcon },
+  { value: "playful", label: "Playful", icon: PlayfulCatIcon },
+  { value: "princess", label: "Princess", icon: PrincessCatIcon },
+  { value: "galaxy", label: "Galaxy", icon: GalaxyCatIcon },
+  { value: "angel", label: "Angel", icon: AngelCatIcon },
+  { value: "witch", label: "Witch", icon: WitchCatIcon },
 ];
 
 function StepStyle({
@@ -545,42 +564,54 @@ function StepStyle({
       {/* Gift Style */}
       <div>
         <h2 className="font-display text-2xl text-foreground/90 mb-4">Gift Box Style</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {GIFT_STYLES.map((g) => (
-            <button
-              key={g.value}
-              onClick={() => dispatch({ type: "SET_GIFT_STYLE", value: g.value })}
-              className={`cursor-pointer glass-card rounded-2xl p-4 text-center transition-all hover:scale-105 ${
-                form.giftStyle === g.value
-                  ? "ring-2 ring-primary scale-105"
-                  : "opacity-70 hover:opacity-100"
-              }`}
-            >
-              <GiftIcon size={32} />
-              <span className="block text-sm font-medium text-foreground/80 mt-2">{g.label}</span>
-            </button>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {GIFT_STYLES.map((g) => {
+            const Icon = g.icon;
+            const isSelected = form.giftStyle === g.value;
+            return (
+              <button
+                key={g.value}
+                onClick={() => dispatch({ type: "SET_GIFT_STYLE", value: g.value })}
+                className={`group cursor-pointer glass-card rounded-[24px] p-5 text-center transition-all duration-300 flex flex-col items-center justify-center gap-3 ${
+                  isSelected
+                    ? "ring-2 ring-primary shadow-[0_0_15px_rgba(200,120,180,0.3)] scale-[1.02] bg-white/60"
+                    : "opacity-70 hover:opacity-100 hover:scale-[1.02] hover:shadow-sm"
+                }`}
+              >
+                <div className={`transition-transform duration-300 ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>
+                  <Icon size={72} />
+                </div>
+                <span className="block text-sm font-semibold text-foreground/80">{g.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Cat Style */}
       <div>
         <h2 className="font-display text-2xl text-foreground/90 mb-4">Cat Companion Style</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {CAT_STYLES.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => dispatch({ type: "SET_CAT_STYLE", value: c.value })}
-              className={`cursor-pointer glass-card rounded-2xl p-4 text-center transition-all hover:scale-105 ${
-                form.catStyle === c.value
-                  ? "ring-2 ring-primary scale-105"
-                  : "opacity-70 hover:opacity-100"
-              }`}
-            >
-              <span className="text-2xl block mb-1 emoji">🐱</span>
-              <span className="text-sm font-medium text-foreground/80">{c.label}</span>
-            </button>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {CAT_STYLES.map((c) => {
+            const Icon = c.icon;
+            const isSelected = form.catStyle === c.value;
+            return (
+              <button
+                key={c.value}
+                onClick={() => dispatch({ type: "SET_CAT_STYLE", value: c.value })}
+                className={`group cursor-pointer glass-card rounded-[24px] p-4 text-center transition-all duration-300 flex flex-col items-center justify-center gap-2 ${
+                  isSelected
+                    ? "ring-2 ring-primary shadow-[0_0_15px_rgba(200,120,180,0.3)] scale-[1.02] bg-white/60"
+                    : "opacity-70 hover:opacity-100 hover:scale-[1.02] hover:shadow-sm"
+                }`}
+              >
+                <div className={`transition-transform duration-300 ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>
+                  <Icon size={64} />
+                </div>
+                <span className="text-sm font-semibold text-foreground/80">{c.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

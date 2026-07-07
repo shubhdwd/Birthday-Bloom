@@ -6,7 +6,8 @@ import { CursorSparkles } from "./CursorSparkles";
 import { CatchGiftGame, GiftBox } from "./CatchGiftGame";
 import { MemoriesGallery } from "./MemoriesGallery";
 import { MusicPlayer } from "./MusicPlayer.tsx";
-import { CatMascot, type CatMood } from "./CatMascot";
+import { CatMascot } from "./CatMascot";
+import { useCatCompanion } from "@/hooks/useCatCompanion";
 import {
   CakeIcon,
   SparkleIcon,
@@ -30,7 +31,6 @@ import {
 /* ────────────────────────────────────────────────────────────── */
 
 type Stage = "hero" | "game" | "reveal" | "letter";
-type Cat = { mood: CatMood; message: string };
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Main orchestrator                                           */
@@ -43,7 +43,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
 
   const [stage, setStage] = useState<Stage>("hero");
   const [interacted, setInteracted] = useState(false);
-  const [cat, setCat] = useState<Cat>({ mood: "adorable", message: dialogues.hero });
+  const catCompanion = useCatCompanion(data.cat_style);
   const letterRef = useRef<HTMLDivElement>(null);
 
   const fireConfetti = useCallback(() => {
@@ -68,7 +68,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
   const handleOpenSurprise = () => {
     setInteracted(true);
     setStage("game");
-    setCat({ mood: "playful", message: dialogues.gameStart });
+    catCompanion.triggerEvent("game_start");
     setTimeout(() => {
       document.getElementById("game")?.scrollIntoView({ behavior: "smooth" });
     }, 100);
@@ -76,11 +76,11 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
 
   const handleGiftCaught = () => {
     setStage("reveal");
-    setCat({ mood: "celebrating", message: dialogues.giftCaught });
+    catCompanion.triggerEvent("gift_caught");
     fireConfetti();
     setTimeout(() => {
       setStage("letter");
-      setCat({ mood: "playful", message: "Tadaaa~ here's your special note ✨" });
+      catCompanion.triggerEvent("letter_reveal");
       setTimeout(() => {
         document.getElementById("letter")?.scrollIntoView({ behavior: "smooth" });
       }, 200);
@@ -88,7 +88,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
   };
 
   const handleLetterComplete = useCallback(() => {
-    setCat({ mood: "affectionate", message: "I kept this message safe for you 💖" });
+    catCompanion.setCustomMessage("affectionate", "I kept this message safe for you 💖");
     // Additional small confetti pop for hearts
     confetti({
       particleCount: 20,
@@ -102,16 +102,14 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
 
   const handleReplay = () => {
     setStage("hero");
-    setCat({ mood: "adorable", message: dialogues.hero });
+    catCompanion.triggerEvent("hero");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const gameCatMessage = (_step: number, total: number, step: number): Cat => {
-    if (step <= 1) return { mood: "playful", message: dialogues.gameChase };
-    if (step <= 3) return { mood: "playful", message: `Aww, keep trying ${name}!` };
-    if (step <= 6) return { mood: "adorable", message: "You're really determined today 🥺" };
-    if (step < total) return { mood: "excited", message: "So close!! Just a tiny bit more ✨" };
-    return { mood: "affectionate", message: "Okay okay… I think you deserve the surprise now 💕" };
+  const handleGameStep = (step: number, total: number) => {
+    if (step <= 3) catCompanion.triggerEvent("game_chase");
+    else if (step < total) catCompanion.setCustomMessage("excited", "So close!! Just a tiny bit more ✨");
+    else catCompanion.setCustomMessage("affectionate", "Okay okay… I think you deserve the surprise now 💕");
   };
 
   // Section-based mascot messages once the letter/gallery are visible
@@ -124,8 +122,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
-          if (e.target.id === "memories") setCat({ mood: "happy", message: dialogues.memories });
-          if (e.target.id === "final") setCat({ mood: "waving", message: dialogues.final });
+          if (e.target.id === "final") catCompanion.triggerEvent("final_page");
         }
       },
       { threshold: 0.35 },
@@ -133,7 +130,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
     io.observe(gallery);
     io.observe(final);
     return () => io.disconnect();
-  }, [stage, dialogues]);
+  }, [stage, catCompanion]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden" data-theme={data.theme}>
@@ -143,9 +140,10 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
         songName={data.song_name}
         songType={data.song_type}
         shouldStart={interacted}
+        onPlay={() => catCompanion.triggerEvent("music_play")}
       />
       <Balloons />
-      <CatMascot mood={cat.mood} message={cat.message} catStyle={data.cat_style} />
+      <CatMascot mood={catCompanion.mood} message={catCompanion.message} catStyle={data.cat_style} />
 
       <AnimatePresence>
         <motion.div
@@ -171,7 +169,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
                 name={name}
                 giftStyle={data.gift_style}
                 onCaught={handleGiftCaught}
-                onStep={(step, total) => setCat(gameCatMessage(step, total, step))}
+                onStep={(step, total) => handleGameStep(step, total)}
               />
             ) : (
               <RevealSection />
@@ -195,6 +193,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
               <MemoriesGallery
                 photos={data.photos}
                 relationship={data.relationship}
+                onPhotoView={() => catCompanion.triggerEvent("photo_reveal")}
               />
             </div>
             <div id="final">

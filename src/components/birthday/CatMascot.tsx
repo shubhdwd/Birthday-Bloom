@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { SparkleIcon, ConfettiIcon } from "./EmojiIcons";
+import { SparkleIcon, ConfettiIcon, HeartIcon } from "./EmojiIcons";
 import { CatMessage } from "./CatMessage";
 import type { CatStyle } from "@/lib/types";
+import { CAT_PERSONALITIES } from "@/lib/cat-personalities";
 
 export type CatMood =
   | "happy"
@@ -46,22 +47,37 @@ export function CatMascot({
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-4 z-40 flex items-end gap-2 md:bottom-6 md:left-6">
+  const personality = CAT_PERSONALITIES[catStyle] || CAT_PERSONALITIES.default;
+  const idleBehavior = personality.idleBehavior;
+
+  let animateProps: any = { y: [0, -8, 0] };
+  let transitionProps: any = { duration: 3, repeat: Infinity, ease: "easeInOut" };
+
+  if (mood === "excited" || mood === "celebrating") {
+    animateProps = { y: [0, -20, 0] };
+    transitionProps = { duration: 0.5, repeat: Infinity, ease: "easeOut" };
+  } else if (idleBehavior === "sleep") {
+    animateProps = { y: [0, -4, 0] };
+    transitionProps = { duration: 4, repeat: Infinity, ease: "easeInOut" };
+  } else if (idleBehavior === "jump") {
+    animateProps = { y: [0, -25, 0] }; 
+    transitionProps = { duration: 0.6, repeat: Infinity, ease: "easeOut" };
+  } else if (idleBehavior === "float" || idleBehavior === "hover") {
+    animateProps = { y: [0, -12, 0] };
+    transitionProps = { duration: 3.5, repeat: Infinity, ease: "easeInOut" };
+  } else if (idleBehavior === "elegant") {
+    animateProps = { y: [0, -6, 0] };
+    transitionProps = { duration: 3, repeat: Infinity, ease: "easeInOut" };
+  }
+
+  return (
+    <div className="pointer-events-none fixed bottom-4 left-4 z-40 flex items-end gap-2 md:bottom-6 md:left-6">
       <motion.div
-        animate={
-          mood === "excited" || mood === "celebrating"
-            ? { y: [0, -15, 0] } // Bouncing
-            : mood === "sleepy" || mood === "emotional"
-            ? { y: [0, -4, 0] } // Slower, softer float
-            : { y: [0, -8, 0] } // Default bounce
-        }
-        transition={{
-          duration: mood === "excited" || mood === "celebrating" ? 0.6 : mood === "sleepy" || mood === "emotional" ? 4 : 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        animate={animateProps}
+        transition={transitionProps}
         className="relative"
       >
-        <CatSVG mood={mood} blink={blink} catStyle={catStyle} />
+        <CatSVG mood={mood} blink={blink} catStyle={catStyle} idleBehavior={idleBehavior} />
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -90,12 +106,12 @@ export function CatMascot({
   );
 }
 
-function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catStyle: CatStyle }) {
+function CatSVG({ mood, blink, catStyle, idleBehavior }: { mood: CatMood; blink: boolean; catStyle: CatStyle; idleBehavior: string }) {
   const celebrating = mood === "celebrating" || mood === "excited";
-  const waving = mood === "waving";
+  const waving = mood === "waving" || (idleBehavior === "wave" && (mood === "happy" || mood === "adorable"));
   const isHeart = mood === "affectionate";
   const isEmotional = mood === "emotional";
-  const isSleepy = mood === "sleepy";
+  const isSleepy = mood === "sleepy" || idleBehavior === "sleep";
 
   // CatStyle visual parameters
   let bodyGradientUrl = "url(#catBodyDefault)";
@@ -110,6 +126,14 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
     bodyGradientUrl = "url(#catBodyPrincess)";
     earColor = "oklch(0.95 0.04 340)";
     innerEarColor = "oklch(0.88 0.15 340)";
+  } else if (catStyle === "angel") {
+    bodyGradientUrl = "url(#catBodyAngel)";
+    earColor = "oklch(0.98 0.01 340)";
+    innerEarColor = "oklch(0.95 0.05 340)";
+  } else if (catStyle === "witch") {
+    bodyGradientUrl = "url(#catBodyWitch)";
+    earColor = "oklch(0.2 0.05 300)";
+    innerEarColor = "oklch(0.1 0.05 300)";
   } else if (catStyle === "sleepy" || catStyle === "playful") {
     // Both use default body colors, but have accessories
     bodyGradientUrl = "url(#catBodyDefault)";
@@ -140,11 +164,22 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
       {/* Sleepy Zzz particles */}
       {isSleepy && (
         <motion.g
-          animate={{ y: [-5, -20], x: [0, 10], opacity: [0, 1, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
-          className="absolute -top-4 right-2 text-primary/60 font-display text-sm font-bold"
+          animate={{ y: [-5, -25], x: [0, 15], opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+          className="absolute -top-4 right-2 text-primary/60 font-display text-base font-bold"
         >
           Zzz
+        </motion.g>
+      )}
+
+      {/* Playful chasing hearts */}
+      {idleBehavior === "jump" && !isSleepy && (
+        <motion.g
+          animate={{ x: [20, -10, 20], y: [-20, -5, -20], opacity: [0.3, 0.8, 0.3], rotate: [0, 180, 360] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-6 right-0 text-pink-400"
+        >
+          <HeartIcon size={16} />
         </motion.g>
       )}
 
@@ -166,6 +201,18 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
             <stop offset="0%" stopColor="oklch(0.99 0.01 340)" />
             <stop offset="70%" stopColor="oklch(0.96 0.04 340)" />
             <stop offset="100%" stopColor="oklch(0.92 0.07 340)" />
+          </radialGradient>
+
+          <radialGradient id="catBodyAngel" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="oklch(0.99 0.01 340)" />
+            <stop offset="70%" stopColor="oklch(0.96 0.02 340)" />
+            <stop offset="100%" stopColor="oklch(0.92 0.04 340)" />
+          </radialGradient>
+          
+          <radialGradient id="catBodyWitch" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="oklch(0.3 0.05 300)" />
+            <stop offset="70%" stopColor="oklch(0.2 0.05 300)" />
+            <stop offset="100%" stopColor="oklch(0.15 0.05 300)" />
           </radialGradient>
 
           <radialGradient id="catCheek" cx="50%" cy="50%" r="50%">
@@ -195,12 +242,20 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
         >
           <path
             d="M28 82 Q10 78 6 62 Q4 52 14 48"
-            stroke={catStyle === "galaxy" ? "oklch(0.25 0.1 280)" : "oklch(0.86 0.08 340)"}
+            stroke={catStyle === "galaxy" ? "oklch(0.25 0.1 280)" : catStyle === "witch" ? "oklch(0.15 0.05 300)" : catStyle === "angel" ? "oklch(0.92 0.04 340)" : "oklch(0.86 0.08 340)"}
             strokeWidth="7"
             strokeLinecap="round"
             fill="none"
           />
         </motion.g>
+
+        {/* Angel Wings */}
+        {catStyle === "angel" && (
+          <g opacity="0.9">
+            <path d="M 25 70 C 5 60, -5 85, 15 110 C 5 90, 15 75, 25 80 Z" fill="oklch(0.95 0.02 200)" />
+            <path d="M 95 70 C 115 60, 125 85, 105 110 C 115 90, 105 75, 95 80 Z" fill="oklch(0.95 0.02 200)" />
+          </g>
+        )}
 
         {/* Body */}
         <ellipse cx="60" cy="82" rx="34" ry="26" fill={bodyGradientUrl} />
@@ -212,12 +267,12 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
             animate={{ rotate: [-8, 22, -8] }}
             transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
           >
-            <ellipse cx="96" cy="60" rx="10" ry="8" fill={catStyle === "galaxy" ? "oklch(0.5 0.1 280)" : "oklch(0.94 0.04 340)"} />
+            <ellipse cx="96" cy="60" rx="10" ry="8" fill={catStyle === "galaxy" ? "oklch(0.5 0.1 280)" : catStyle === "witch" ? "oklch(0.25 0.05 300)" : catStyle === "angel" ? "oklch(0.96 0.02 340)" : "oklch(0.94 0.04 340)"} />
           </motion.g>
         ) : (
-          <ellipse cx="42" cy="102" rx="8" ry="5" fill={catStyle === "galaxy" ? "oklch(0.3 0.1 280)" : "oklch(0.88 0.07 340)"} />
+          <ellipse cx="42" cy="102" rx="8" ry="5" fill={catStyle === "galaxy" ? "oklch(0.3 0.1 280)" : catStyle === "witch" ? "oklch(0.2 0.05 300)" : catStyle === "angel" ? "oklch(0.96 0.02 340)" : "oklch(0.88 0.07 340)"} />
         )}
-        <ellipse cx="78" cy="102" rx="8" ry="5" fill={catStyle === "galaxy" ? "oklch(0.3 0.1 280)" : "oklch(0.88 0.07 340)"} />
+        <ellipse cx="78" cy="102" rx="8" ry="5" fill={catStyle === "galaxy" ? "oklch(0.3 0.1 280)" : catStyle === "witch" ? "oklch(0.2 0.05 300)" : catStyle === "angel" ? "oklch(0.96 0.02 340)" : "oklch(0.88 0.07 340)"} />
 
         {/* Galaxy Body Stars */}
         {catStyle === "galaxy" && (
@@ -271,12 +326,16 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
           
           {/* Accessories */}
           {catStyle === "princess" && (
-            <g transform="translate(48, 12)">
+            <motion.g 
+              transform="translate(48, 12)"
+              animate={idleBehavior === "elegant" ? { y: [0, -3, 0] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               <path d="M 0 15 L -8 0 L 4 8 L 12 -4 L 20 8 L 32 0 L 24 15 Z" fill="oklch(0.85 0.15 80)" stroke="oklch(0.75 0.15 75)" strokeWidth="1.5" />
               <circle cx="-8" cy="0" r="2" fill="oklch(0.7 0.15 340)" />
               <circle cx="12" cy="-4" r="2" fill="oklch(0.7 0.15 340)" />
               <circle cx="32" cy="0" r="2" fill="oklch(0.7 0.15 340)" />
-            </g>
+            </motion.g>
           )}
 
           {catStyle === "sleepy" && (
@@ -292,6 +351,21 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
               <circle cx="0" cy="0" r="4" fill="oklch(0.6 0.2 20)" />
               <path d="M -2 0 L -12 -6 L -10 6 Z" fill="oklch(0.65 0.2 20)" />
               <path d="M 2 0 L 12 -6 L 10 6 Z" fill="oklch(0.65 0.2 20)" />
+            </g>
+          )}
+
+          {catStyle === "angel" && (
+            <g transform="translate(60, 8)">
+              <ellipse cx="0" cy="0" rx="16" ry="4" stroke="oklch(0.9 0.15 80)" strokeWidth="2.5" fill="none" />
+            </g>
+          )}
+
+          {catStyle === "witch" && (
+            <g transform="translate(60, 26)">
+              <path d="M -25 0 C -15 0, 15 0, 25 0 L 20 -5 C 10 -25, 5 -30, -5 -30 C -10 -20, -20 -10, -25 0 Z" fill="oklch(0.3 0.1 280)" />
+              <ellipse cx="0" cy="0" rx="28" ry="5" fill="oklch(0.25 0.1 280)" />
+              <path d="M -15 -3 L 15 -3 L 10 -13 L -10 -13 Z" fill="oklch(0.4 0.15 280)" />
+              <rect x="-4" y="-10" width="8" height="6" rx="1" fill="none" stroke="oklch(0.9 0.15 80)" strokeWidth="2" />
             </g>
           )}
 
@@ -341,8 +415,8 @@ function CatSVG({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catS
 }
 
 function Eyes({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catStyle: CatStyle }) {
-  const eyeColor = catStyle === "galaxy" ? "oklch(0.9 0.05 280)" : "oklch(0.25 0.05 340)";
-  const pupilColor = "white";
+  const eyeColor = catStyle === "galaxy" ? "oklch(0.9 0.05 280)" : catStyle === "witch" ? "oklch(0.85 0.15 130)" : "oklch(0.25 0.05 340)";
+  const pupilColor = catStyle === "witch" ? "oklch(0.1 0.05 300)" : "white";
 
   if (blink || mood === "sleepy") {
     return (
@@ -408,7 +482,7 @@ function Eyes({ mood, blink, catStyle }: { mood: CatMood; blink: boolean; catSty
 }
 
 function Mouth({ mood, catStyle }: { mood: CatMood; catStyle: CatStyle }) {
-  const stroke = catStyle === "galaxy" ? "oklch(0.9 0.05 280)" : "oklch(0.25 0.05 340)";
+  const stroke = catStyle === "galaxy" ? "oklch(0.9 0.05 280)" : catStyle === "witch" ? "oklch(0.9 0.05 280)" : "oklch(0.25 0.05 340)";
   
   if (mood === "surprised" || mood === "curious") {
     return <ellipse cx="60" cy="66" rx="3" ry="3.5" fill={stroke} />;

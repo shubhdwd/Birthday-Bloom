@@ -7,13 +7,14 @@ interface MusicPlayerProps {
   songName: string | null;
   songType: SongType;
   shouldStart: boolean;
+  onPlay?: () => void;
 }
 
 /** Default fallback track when no song is uploaded */
 const DEFAULT_TRACK =
   "https://cdn.pixabay.com/download/audio/2022/03/15/audio_1a29c05c67.mp3?filename=relaxing-birthday-music-box-lullaby-118465.mp3";
 
-export function MusicPlayer({ songUrl, songName, songType, shouldStart }: MusicPlayerProps) {
+export function MusicPlayer({ songUrl, songName, songType, shouldStart, onPlay }: MusicPlayerProps) {
   const isUploadOrDefault = !songType || songType === "upload";
   const trackUrl = songUrl || DEFAULT_TRACK;
   const displayName = songName || "Birthday Music Box";
@@ -27,7 +28,7 @@ export function MusicPlayer({ songUrl, songName, songType, shouldStart }: MusicP
   }
 
   // Default: HTML5 audio player
-  return <AudioPlayer url={trackUrl} name={displayName} shouldStart={shouldStart} />;
+  return <AudioPlayer url={trackUrl} name={displayName} shouldStart={shouldStart} onPlay={onPlay} />;
 }
 
 /* ── HTML5 Audio Player (floating "Now Playing" widget) ── */
@@ -36,10 +37,12 @@ function AudioPlayer({
   url,
   name,
   shouldStart,
+  onPlay,
 }: {
   url: string;
   name: string;
   shouldStart: boolean;
+  onPlay?: () => void;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -76,6 +79,7 @@ function AudioPlayer({
       .then(() => {
         setPlaying(true);
         setExpanded(true);
+        if (onPlay) onPlay();
         // Auto-collapse after 4s
         setTimeout(() => setExpanded(false), 4000);
       })
@@ -95,7 +99,10 @@ function AudioPlayer({
       setPlaying(false);
     } else {
       a.play()
-        .then(() => setPlaying(true))
+        .then(() => {
+          setPlaying(true);
+          if (onPlay) onPlay();
+        })
         .catch(() => {});
     }
   };

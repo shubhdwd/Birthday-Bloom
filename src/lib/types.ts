@@ -19,9 +19,9 @@ export type RecipientGender = "female" | "male" | "neutral";
 
 export type Theme = "pink-lavender" | "pink-purple" | "midnight-purple";
 
-export type GiftStyle = "classic" | "ribbon" | "cute-box" | "sparkle-box";
+export type GiftStyle = "classic" | "ribbon" | "cute-box" | "sparkle-box" | "vintage-box" | "galaxy-box";
 
-export type CatStyle = "default" | "sleepy" | "playful" | "princess" | "galaxy";
+export type CatStyle = "default" | "sleepy" | "playful" | "princess" | "galaxy" | "angel" | "witch";
 
 export type SongType = "upload" | "spotify" | "youtube" | null;
 

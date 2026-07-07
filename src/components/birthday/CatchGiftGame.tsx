@@ -134,33 +134,47 @@ export function GiftBox({
   const isCute = giftStyle === "cute-box";
   const isSparkle = giftStyle === "sparkle-box";
   const isRibbon = giftStyle === "ribbon";
+  const isVintage = giftStyle === "vintage-box";
+  const isGalaxy = giftStyle === "galaxy-box";
 
   // Box body styling
-  const boxRadius = isCute ? "24px" : "16px";
+  const boxRadius = isCute ? "24px" : isVintage ? "40px 40px 16px 16px" : "16px";
   const boxBg = isCute
     ? "linear-gradient(180deg, oklch(0.92 0.04 330), oklch(0.85 0.06 330))"
     : isSparkle
     ? "linear-gradient(180deg, oklch(0.8 0.1 270), oklch(0.65 0.15 280))"
+    : isVintage
+    ? "linear-gradient(180deg, oklch(0.92 0.04 40), oklch(0.82 0.06 50))"
+    : isGalaxy
+    ? "linear-gradient(180deg, oklch(0.3 0.1 280), oklch(0.15 0.08 270))"
     : "linear-gradient(180deg, oklch(0.82 0.14 350), oklch(0.72 0.16 340))";
     
   // Lid styling
-  const lidRadius = isCute ? "16px" : "12px";
+  const lidRadius = isCute ? "16px" : isVintage ? "30px" : "12px";
   const lidBg = isCute
     ? "linear-gradient(180deg, oklch(0.95 0.03 330), oklch(0.88 0.05 330))"
     : isSparkle
     ? "linear-gradient(180deg, oklch(0.85 0.08 270), oklch(0.7 0.12 280))"
+    : isVintage
+    ? "linear-gradient(180deg, oklch(0.88 0.05 40), oklch(0.78 0.08 50))"
+    : isGalaxy
+    ? "linear-gradient(180deg, oklch(0.35 0.1 280), oklch(0.2 0.08 270))"
     : "linear-gradient(180deg, oklch(0.86 0.14 345), oklch(0.78 0.16 340))";
 
   // Ribbon styling
-  const ribbonWidth = isRibbon ? 36 : 20;
+  const ribbonWidth = isRibbon ? 36 : isVintage ? 12 : 20;
   const ribbonBg = isCute
     ? "linear-gradient(180deg, oklch(0.95 0.02 100), oklch(0.9 0.04 100))"
     : isSparkle
     ? "linear-gradient(180deg, oklch(0.98 0.1 80), oklch(0.9 0.15 70))"
+    : isVintage
+    ? "linear-gradient(180deg, oklch(0.75 0.12 340), oklch(0.65 0.15 340))"
+    : isGalaxy
+    ? "linear-gradient(180deg, oklch(0.9 0.1 240), oklch(0.75 0.15 250))"
     : "linear-gradient(180deg, oklch(0.95 0.1 85), oklch(0.85 0.14 60))";
 
   // Opening animation variant
-  const lidAnimation = isSparkle 
+  const lidAnimation = isSparkle || isGalaxy
     ? { y: -100, rotate: 180, scale: 0.8, opacity: 0, x: "-50%" } 
     : isRibbon
     ? { y: -50, rotate: -25, x: "-70%", opacity: 0.9 }
@@ -173,13 +187,13 @@ export function GiftBox({
       className="relative"
       style={{ width: 140, height: 140 }}
     >
-      {/* Background glow for Sparkle box */}
-      {isSparkle && !opened && (
+      {/* Background glow for Sparkle or Galaxy box */}
+      {(isSparkle || isGalaxy) && !opened && (
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 2, repeat: Infinity }}
           className="absolute top-4 left-1/2 -translate-x-1/2 w-[140px] h-[100px] blur-2xl"
-          style={{ background: "oklch(0.7 0.15 280)" }}
+          style={{ background: isGalaxy ? "oklch(0.4 0.15 280)" : "oklch(0.7 0.15 280)" }}
         />
       )}
 
@@ -194,11 +208,11 @@ export function GiftBox({
         </motion.div>
       )}
 
-      {isSparkle && bouncing && (
+      {(isSparkle || isGalaxy) && bouncing && (
         <motion.div
           animate={{ rotate: 180, scale: [0.8, 1.2, 0.8], opacity: [0, 1, 0] }}
           transition={{ duration: 1.2, repeat: Infinity }}
-          className="absolute -top-6 left-0 text-yellow-300"
+          className={`absolute -top-6 left-0 ${isGalaxy ? "text-cyan-300" : "text-yellow-300"}`}
         >
           <SparkleIcon size={32} />
         </motion.div>
@@ -212,9 +226,13 @@ export function GiftBox({
           height: 90,
           borderRadius: boxRadius,
           background: boxBg,
-          boxShadow: isSparkle ? "0 10px 30px -10px rgba(120,80,250,0.6)" : undefined,
+          boxShadow: isSparkle ? "0 10px 30px -10px rgba(120,80,250,0.6)" : isGalaxy ? "0 10px 30px -10px rgba(80,50,200,0.8)" : undefined,
         }}
-      />
+      >
+        {isGalaxy && (
+          <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+        )}
+      </div>
       {/* vertical ribbon */}
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-md z-10"
@@ -232,8 +250,8 @@ export function GiftBox({
         </div>
       )}
       
-      {/* Sparkle decorations */}
-      {isSparkle && (
+      {/* Sparkle or Galaxy decorations */}
+      {(isSparkle || isGalaxy) && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-16 z-20">
           <SparkleIcon size={14} className="text-white/80" />
           <SparkleIcon size={18} className="text-white/80" />
@@ -269,7 +287,7 @@ export function GiftBox({
           <div
             className="absolute left-1/2 -translate-x-1/2 -top-6 h-6 w-14 rounded-full"
             style={{
-              background: `radial-gradient(circle at 30% 50%, ${isCute ? "oklch(0.95 0.02 100)" : isSparkle ? "oklch(0.98 0.1 80)" : "oklch(0.9 0.14 70)"}, transparent 60%), radial-gradient(circle at 70% 50%, ${isCute ? "oklch(0.95 0.02 100)" : isSparkle ? "oklch(0.98 0.1 80)" : "oklch(0.9 0.14 70)"}, transparent 60%)`,
+              background: `radial-gradient(circle at 30% 50%, ${isCute ? "oklch(0.95 0.02 100)" : isSparkle ? "oklch(0.98 0.1 80)" : isGalaxy ? "oklch(0.9 0.1 240)" : "oklch(0.9 0.14 70)"}, transparent 60%), radial-gradient(circle at 70% 50%, ${isCute ? "oklch(0.95 0.02 100)" : isSparkle ? "oklch(0.98 0.1 80)" : isGalaxy ? "oklch(0.9 0.1 240)" : "oklch(0.9 0.14 70)"}, transparent 60%)`,
             }}
           />
         ) : (
