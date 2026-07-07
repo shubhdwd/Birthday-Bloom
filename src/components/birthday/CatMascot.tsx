@@ -45,8 +45,6 @@ export function CatMascot({
     };
   }, []);
 
-  return (
-    <div className="pointer-events-none fixed bottom-4 left-4 z-40 flex items-end gap-2 md:bottom-6 md:left-6">
   const personality = CAT_PERSONALITIES[catStyle] || CAT_PERSONALITIES.default;
   const idleBehavior = personality.idleBehavior;
 
