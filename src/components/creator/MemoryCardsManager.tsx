@@ -7,7 +7,7 @@ import { MemoryCardEditor } from "./MemoryCardEditor";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE_MB = 5;
-const MAX_CARDS = 50;
+const MAX_CARDS = 20;
 
 interface MemoryCardsManagerProps {
   cards: MemoryCardEntry[];
