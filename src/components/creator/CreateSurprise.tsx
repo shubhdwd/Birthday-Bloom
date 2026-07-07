@@ -117,7 +117,7 @@ export function CreateSurprise() {
       case 1:
         return form.recipientName.trim().length > 0 && form.message.trim().length > 0;
       case 2:
-        return form.photos.length >= 5;
+        return form.photos.length >= 1;
       case 3:
         return true; // music is optional
       case 4:
@@ -430,7 +430,7 @@ function StepPhotos({
     <div>
       <h2 className="font-display text-2xl text-foreground/90 mb-2">Upload Photos</h2>
       <p className="text-foreground/50 text-sm mb-4">
-        Add 5–20 of your favourite memories together
+        Add 1–20 of your favourite memories together
       </p>
       <PhotoUploader
         photos={form.photos}

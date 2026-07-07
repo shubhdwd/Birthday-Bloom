@@ -139,12 +139,7 @@ export function PhotoUploader({ photos, onChange }: PhotoUploaderProps) {
         </p>
       )}
 
-      {photos.length < 5 && photos.length > 0 && (
-        <p className="text-xs text-amber-500/80">
-          Please add at least {5 - photos.length} more photo{5 - photos.length > 1 ? "s" : ""}{" "}
-          (minimum 5)
-        </p>
-      )}
+
     </div>
   );
 }

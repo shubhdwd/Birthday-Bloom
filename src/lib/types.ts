@@ -10,6 +10,8 @@ export type Relationship =
   | "crush"
   | "sister"
   | "brother"
+  | "mother"
+  | "father"
   | "partner"
   | "someone-special";
 
