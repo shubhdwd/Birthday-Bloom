@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" alt="Birthday Bloom Logo" width="120" />
+  <img src="public/logotn.png" alt="Birthday Bloom Logo" width="120" />
   <h1>🎂✨ Birthday Bloom</h1>
   <p><strong>A magical, frictionless platform for creating personalized digital birthday surprises.</strong></p>
 </div>
