@@ -16,8 +16,7 @@ CREATE TABLE IF NOT EXISTS surprises (
   song_url       TEXT,
   song_name      TEXT,
   song_type      TEXT,                -- 'upload' | 'spotify' | 'youtube' | null
-  photo_urls     TEXT[] NOT NULL DEFAULT '{}',
-  photo_captions TEXT[] NOT NULL DEFAULT '{}',
+  photos         JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at     TIMESTAMPTZ,
   auto_delete_enabled BOOLEAN DEFAULT TRUE,

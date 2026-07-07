@@ -1,18 +1,15 @@
 import { motion } from "framer-motion";
 import { SparkleIcon } from "./EmojiIcons";
 import { CatMessage } from "./CatMessage";
-import type { Relationship } from "@/lib/types";
+import type { Relationship, SurpriseData } from "@/lib/types";
 import { getPhotoCaption, getFloatingNotes } from "@/lib/personalization";
 
 interface MemoriesGalleryProps {
-  photoUrls: string[];
-  captions: string[];
+  photos: SurpriseData["photos"];
   relationship: Relationship;
 }
 
-const ROTATIONS = [-3, 2, -2, 3, -1, 2, -3, 1, -2, 3, -1, 2, -3, 1, 2, -2, 3, -1, 2, -3];
-
-export function MemoriesGallery({ photoUrls, captions, relationship }: MemoriesGalleryProps) {
+export function MemoriesGallery({ photos, relationship }: MemoriesGalleryProps) {
   const notes = getFloatingNotes(relationship);
 
   return (
@@ -63,31 +60,38 @@ export function MemoriesGallery({ photoUrls, captions, relationship }: MemoriesG
 
       {/* Scrapbook masonry grid */}
       <div className="mx-auto max-w-6xl columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6 [column-fill:_balance]">
-        {photoUrls.map((url, i) => {
-          const caption = getPhotoCaption(i, captions, relationship);
-          const rotation = ROTATIONS[i % ROTATIONS.length];
+        {photos?.map((photo, i) => {
+          // If Math.random() is used inside getPhotoCaption, we can just let it run.
+          // But to avoid flickers on re-render, we can just pass the index to seed the fallback.
+          const fallbackIndex = i % 3;
+          const fallbacks = [
+            "A beautiful memory ✨",
+            "A special moment 💜",
+            "One more reason to smile 🌸",
+          ];
+          const displayCaption = photo.caption?.trim() ? photo.caption : fallbacks[fallbackIndex];
 
           return (
             <motion.figure
-              key={i}
+              key={photo.url}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.7, delay: (i % 4) * 0.08 }}
               whileHover={{ scale: 1.04, rotate: 0, zIndex: 10 }}
-              style={{ transform: `rotate(${rotation}deg)` }}
+              style={{ transform: `rotate(${photo.rotation}deg)` }}
               className="polaroid break-inside-avoid mb-6"
             >
               {/* Tape decoration on top */}
               <div className="scrapbook-tape" />
               <img
-                src={url}
-                alt={caption}
+                src={photo.url}
+                alt={displayCaption}
                 loading="lazy"
                 className="w-full h-auto rounded-sm block"
               />
               <figcaption className="mt-3 text-center font-script text-lg text-primary/90">
-                <CatMessage text={caption} />
+                <CatMessage text={displayCaption} />
               </figcaption>
             </motion.figure>
           );

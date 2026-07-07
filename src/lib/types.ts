@@ -37,8 +37,12 @@ export interface SurpriseData {
   song_url: string | null;
   song_name: string | null;
   song_type: SongType;
-  photo_urls: string[];
-  photo_captions: string[];
+  photos: {
+    url: string;
+    caption: string;
+    rotation: number;
+    layout: string;
+  }[];
   created_at: string;
   expires_at: string | null;
   auto_delete_enabled: boolean;

@@ -346,16 +346,3 @@ export function getDecorations(gender: RecipientGender): DecorationSet {
   return DECORATIONS[gender];
 }
 
-/**
- * Returns a caption for the given photo index.
- * Prefers the creator's custom caption; falls back to relationship-based default.
- */
-export function getPhotoCaption(
-  index: number,
-  customCaptions: string[],
-  relationship: Relationship,
-): string {
-  if (customCaptions[index]?.trim()) return customCaptions[index];
-  const defaults = MEMORY_CAPTIONS[relationship];
-  return defaults[index % defaults.length];
-}

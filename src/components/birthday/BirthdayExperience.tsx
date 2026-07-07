@@ -23,7 +23,6 @@ import {
   getHeroSubtitle,
   getCatDialogues,
   getFloatingNotes,
-  getPhotoCaption,
 } from "@/lib/personalization";
 
 /* ────────────────────────────────────────────────────────────── */
@@ -194,8 +193,7 @@ export function BirthdayExperience({ data }: { data: SurpriseData }) {
             <ScrollPrompt />
             <div id="memories">
               <MemoriesGallery
-                photoUrls={data.photo_urls}
-                captions={data.photo_captions}
+                photos={data.photos}
                 relationship={data.relationship}
               />
             </div>
