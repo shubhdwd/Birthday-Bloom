@@ -61,13 +61,13 @@ export function MemoriesGallery({ photos, relationship, onPhotoView }: MemoriesG
       </motion.h2>
 
       {/* Masonry grid */}
-      <div className="mx-auto max-w-6xl columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6 [column-fill:_balance]">
+      <div className="mx-auto max-w-6xl columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
         {photos?.map((photo, i) => (
           <motion.figure
             key={photo.id || photo.url}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true }}
             onViewportEnter={() => onPhotoView && onPhotoView()}
             transition={{ duration: 0.7, delay: (i % 4) * 0.08 }}
             whileHover={{ scale: 1.02, rotate: 0, zIndex: 10 }}

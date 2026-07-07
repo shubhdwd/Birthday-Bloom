@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { Reorder, motion, AnimatePresence } from "framer-motion";
+import { Reorder, motion, AnimatePresence, useDragControls } from "framer-motion";
 import { nanoid } from "nanoid";
 import { GripVertical, Plus } from "lucide-react";
 import type { MemoryCardEntry } from "@/lib/types";
@@ -86,66 +86,16 @@ export function MemoryCardsManager({ cards, onChange }: MemoryCardsManagerProps)
       <Reorder.Group axis="y" values={cards} onReorder={onChange} className="space-y-3">
         <AnimatePresence>
           {cards.map((card, index) => (
-            <Reorder.Item 
+            <DraggableCardItem 
               key={card.id} 
-              value={card} 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card rounded-2xl overflow-hidden shadow-sm"
-            >
-              {/* Header (Always visible) */}
-              <div 
-                className="flex items-center gap-3 p-3 bg-white/40 cursor-pointer hover:bg-white/60 transition-colors"
-                onClick={() => setExpandedId(expandedId === card.id ? null : card.id)}
-              >
-                <div className="cursor-grab active:cursor-grabbing p-2 hover:bg-black/5 rounded-md text-foreground/50">
-                  <GripVertical size={16} />
-                </div>
-                
-                {card.preview ? (
-                  <img src={card.preview} alt="Thumb" className="w-10 h-10 rounded-md object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-md bg-black/5 flex items-center justify-center">
-                    📸
-                  </div>
-                )}
-                
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-foreground/90">
-                    {card.title || `Memory Card ${index + 1}`}
-                  </h4>
-                  <p className="text-xs text-foreground/50 line-clamp-1">
-                    {card.message || "No message written yet."}
-                  </p>
-                </div>
-                
-                <div className="px-3">
-                  <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full uppercase tracking-wider">
-                    {card.style}
-                  </span>
-                </div>
-              </div>
-
-              {/* Editor (Expanded) */}
-              <AnimatePresence>
-                {expandedId === card.id && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="border-t border-primary/10"
-                  >
-                    <MemoryCardEditor 
-                      card={card} 
-                      onChange={updateCard}
-                      onDelete={() => deleteCard(card.id)}
-                      onDuplicate={() => duplicateCard(card)}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Reorder.Item>
+              card={card} 
+              index={index} 
+              expandedId={expandedId} 
+              setExpandedId={setExpandedId} 
+              updateCard={updateCard} 
+              deleteCard={deleteCard} 
+              duplicateCard={duplicateCard} 
+            />
           ))}
         </AnimatePresence>
       </Reorder.Group>
@@ -168,5 +118,92 @@ export function MemoryCardsManager({ cards, onChange }: MemoryCardsManagerProps)
         <p className="text-center text-sm text-foreground/50">Maximum of {MAX_CARDS} cards reached.</p>
       )}
     </div>
+  );
+}
+
+function DraggableCardItem({ 
+  card, 
+  index, 
+  expandedId, 
+  setExpandedId, 
+  updateCard, 
+  deleteCard, 
+  duplicateCard 
+}: { 
+  card: MemoryCardEntry, 
+  index: number, 
+  expandedId: string | null, 
+  setExpandedId: (id: string | null) => void,
+  updateCard: (card: MemoryCardEntry) => void,
+  deleteCard: (id: string) => void,
+  duplicateCard: (card: MemoryCardEntry) => void
+}) {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item 
+      value={card} 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      dragListener={false}
+      dragControls={controls}
+      className="glass-card rounded-2xl overflow-hidden shadow-sm"
+    >
+      {/* Header (Always visible) */}
+      <div 
+        className="flex items-center gap-3 p-3 bg-white/40 cursor-pointer hover:bg-white/60 transition-colors"
+        onClick={() => setExpandedId(expandedId === card.id ? null : card.id)}
+      >
+        <div 
+          className="cursor-grab active:cursor-grabbing p-2 hover:bg-black/5 rounded-md text-foreground/50 touch-none"
+          onPointerDown={(e) => controls.start(e)}
+        >
+          <GripVertical size={16} />
+        </div>
+        
+        {card.preview ? (
+          <img src={card.preview} alt="Thumb" className="w-10 h-10 rounded-md object-cover" />
+        ) : (
+          <div className="w-10 h-10 rounded-md bg-black/5 flex items-center justify-center">
+            📸
+          </div>
+        )}
+        
+        <div className="flex-1">
+          <h4 className="text-sm font-semibold text-foreground/90">
+            {card.title || `Memory Card ${index + 1}`}
+          </h4>
+          <p className="text-xs text-foreground/50 line-clamp-1">
+            {card.message || "No message written yet."}
+          </p>
+        </div>
+        
+        <div className="px-3 hidden sm:block">
+          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full uppercase tracking-wider">
+            {card.style}
+          </span>
+        </div>
+      </div>
+
+      {/* Editor (Expanded) */}
+      <AnimatePresence>
+        {expandedId === card.id && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-primary/10"
+          >
+            <MemoryCardEditor 
+              card={card} 
+              onChange={updateCard}
+              onDelete={() => deleteCard(card.id)}
+              onDuplicate={() => duplicateCard(card)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Reorder.Item>
   );
 }
