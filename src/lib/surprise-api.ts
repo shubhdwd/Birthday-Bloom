@@ -102,10 +102,17 @@ export async function createSurprise(
       song_name: form.songName || null,
       song_type: form.songType,
       photos: photoUrls.map((url, i) => ({
+        id: form.photos[i].id,
         url,
-        caption: form.photos[i].caption,
-        rotation: [-3, 2, -2, 3, -1, 2, -3, 1, -2, 3, -1, 2, -3, 1, 2, -2, 3, -1, 2, -3][i % 20],
-        layout: "polaroid"
+        title: form.photos[i].title,
+        message: form.photos[i].message,
+        date: form.photos[i].date,
+        location: form.photos[i].location,
+        moodTag: form.photos[i].moodTag,
+        emoji: form.photos[i].emoji,
+        style: form.photos[i].style,
+        stickerPack: form.photos[i].stickerPack,
+        rotation: form.photos[i].rotation
       })),
       expires_at: expiresAt,
       auto_delete_enabled: autoDeleteEnabled,

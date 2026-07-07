@@ -25,6 +25,22 @@ export type CatStyle = "default" | "sleepy" | "playful" | "princess" | "galaxy" 
 
 export type SongType = "upload" | "spotify" | "youtube" | null;
 
+export type MemoryCardStyle = "polaroid" | "scrapbook" | "glassmorphism" | "cute-pastel" | "minimal" | "vintage-journal" | "birthday-theme";
+
+export interface MemoryCard {
+  id: string;
+  url: string;
+  title?: string;
+  message?: string;
+  date?: string;
+  location?: string;
+  moodTag?: string;
+  emoji?: string;
+  style: MemoryCardStyle;
+  stickerPack?: string;
+  rotation: number;
+}
+
 export interface SurpriseData {
   id: string;
   recipient_name: string;
@@ -37,12 +53,7 @@ export interface SurpriseData {
   song_url: string | null;
   song_name: string | null;
   song_type: SongType;
-  photos: {
-    url: string;
-    caption: string;
-    rotation: number;
-    layout: string;
-  }[];
+  photos: MemoryCard[];
   created_at: string;
   expires_at: string | null;
   auto_delete_enabled: boolean;
@@ -62,12 +73,11 @@ export interface SurpriseFormState {
   songUrl: string;
   songName: string;
   songType: SongType;
-  photos: PhotoEntry[];
+  photos: MemoryCardEntry[];
   deletionPeriod: number | null;
 }
 
-export interface PhotoEntry {
+export interface MemoryCardEntry extends Omit<MemoryCard, "url"> {
   file: File;
   preview: string; // object URL for preview
-  caption: string;
 }

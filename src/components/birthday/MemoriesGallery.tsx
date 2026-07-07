@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { SparkleIcon } from "./EmojiIcons";
 import { CatMessage } from "./CatMessage";
 import type { Relationship, SurpriseData } from "@/lib/types";
-import { getMemoryCaptions, getFloatingNotes } from "@/lib/personalization";
+import { getFloatingNotes } from "@/lib/personalization";
+import { MemoryCardView } from "./MemoryCardView";
 
 interface MemoriesGalleryProps {
   photos: SurpriseData["photos"];
@@ -12,7 +13,6 @@ interface MemoriesGalleryProps {
 
 export function MemoriesGallery({ photos, relationship, onPhotoView }: MemoriesGalleryProps) {
   const notes = getFloatingNotes(relationship);
-  const fallbacks = getMemoryCaptions(relationship);
 
   return (
     <section className="relative px-6 py-24">
@@ -60,39 +60,42 @@ export function MemoriesGallery({ photos, relationship, onPhotoView }: MemoriesG
         <SparkleIcon size={32} /> Beautiful Memories <SparkleIcon size={32} />
       </motion.h2>
 
-      {/* Scrapbook masonry grid */}
+      {/* Masonry grid */}
       <div className="mx-auto max-w-6xl columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6 [column-fill:_balance]">
-        {photos?.map((photo, i) => {
-          // Use the personalized fallbacks based on relationship
-          const fallbackIndex = i % fallbacks.length;
-          const displayCaption = photo.caption?.trim() ? photo.caption : fallbacks[fallbackIndex];
-
-          return (
-            <motion.figure
-              key={photo.url}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              onViewportEnter={() => onPhotoView && onPhotoView()}
-              transition={{ duration: 0.7, delay: (i % 4) * 0.08 }}
-              whileHover={{ scale: 1.04, rotate: 0, zIndex: 10 }}
-              style={{ transform: `rotate(${photo.rotation}deg)` }}
-              className="polaroid break-inside-avoid mb-6"
-            >
-              {/* Tape decoration on top */}
-              <div className="scrapbook-tape" />
-              <img
-                src={photo.url}
-                alt={displayCaption}
-                loading="lazy"
-                className="w-full h-auto rounded-sm block"
-              />
-              <figcaption className="mt-3 text-center font-script text-lg text-primary/90">
-                <CatMessage text={displayCaption} />
-              </figcaption>
-            </motion.figure>
-          );
-        })}
+        {photos?.map((photo, i) => (
+          <motion.figure
+            key={photo.id || photo.url}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            onViewportEnter={() => onPhotoView && onPhotoView()}
+            transition={{ duration: 0.7, delay: (i % 4) * 0.08 }}
+            whileHover={{ scale: 1.02, rotate: 0, zIndex: 10 }}
+            style={{ transform: `rotate(${photo.rotation || 0}deg)` }}
+            className="break-inside-avoid mb-6"
+          >
+            {/* Fallback for legacy photos created before the upgrade */}
+            {photo.style ? (
+              <MemoryCardView card={photo} />
+            ) : (
+              <div className="card-polaroid relative">
+                <div className="scrapbook-tape" />
+                <img
+                  src={photo.url}
+                  alt={photo.title || "Memory"}
+                  loading="lazy"
+                  className="w-full h-auto rounded-sm block"
+                />
+                {/* Check for old caption field on legacy object */}
+                {(photo as any).caption && (
+                  <figcaption className="mt-3 text-center font-script text-lg text-primary/90">
+                    <CatMessage text={(photo as any).caption} />
+                  </figcaption>
+                )}
+              </div>
+            )}
+          </motion.figure>
+        ))}
       </div>
     </section>
   );

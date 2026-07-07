@@ -1,7 +1,7 @@
 import { useState, useReducer, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WizardProgress } from "./WizardProgress";
-import { PhotoUploader } from "./PhotoUploader";
+import { MemoryCardsManager } from "./MemoryCardsManager";
 import { SongUploader } from "./SongUploader";
 import { SuccessModal } from "./SuccessModal";
 import { CatMascot } from "@/components/birthday/CatMascot";
@@ -31,7 +31,7 @@ import type {
   Theme,
   GiftStyle,
   CatStyle,
-  PhotoEntry,
+  MemoryCardEntry,
   SongType,
 } from "@/lib/types";
 
@@ -44,7 +44,7 @@ type Action =
   | { type: "SET_GENDER"; value: RecipientGender }
   | { type: "SET_NAME"; value: string }
   | { type: "SET_MESSAGE"; value: string }
-  | { type: "SET_PHOTOS"; value: PhotoEntry[] }
+  | { type: "SET_PHOTOS"; value: MemoryCardEntry[] }
   | { type: "SET_SONG_FILE"; value: File | null }
   | { type: "SET_SONG_URL"; value: string }
   | { type: "SET_SONG_NAME"; value: string }
@@ -164,8 +164,19 @@ export function CreateSurprise() {
     song_url: form.songType === "upload" && form.songFile ? URL.createObjectURL(form.songFile) : form.songUrl,
     song_name: form.songName,
     song_type: form.songType,
-    photo_urls: form.photos.map(p => p.preview),
-    photo_captions: form.photos.map(p => p.caption),
+    photos: form.photos.map(p => ({
+      id: p.id,
+      url: p.preview,
+      title: p.title,
+      message: p.message,
+      date: p.date,
+      location: p.location,
+      moodTag: p.moodTag,
+      emoji: p.emoji,
+      style: p.style,
+      stickerPack: p.stickerPack,
+      rotation: p.rotation
+    })),
     created_at: new Date().toISOString(),
     expires_at: null,
     auto_delete_enabled: false,
@@ -443,13 +454,13 @@ function StepPhotos({
 }) {
   return (
     <div>
-      <h2 className="font-display text-2xl text-foreground/90 mb-2">Upload Photos</h2>
+      <h2 className="font-display text-2xl text-foreground/90 mb-2">Create Memory Cards</h2>
       <p className="text-foreground/50 text-sm mb-4">
-        Add 1–20 of your favourite memories together
+        Design beautiful cards for your favourite memories together.
       </p>
-      <PhotoUploader
-        photos={form.photos}
-        onChange={(photos: PhotoEntry[]) => dispatch({ type: "SET_PHOTOS", value: photos })}
+      <MemoryCardsManager
+        cards={form.photos}
+        onChange={(cards: MemoryCardEntry[]) => dispatch({ type: "SET_PHOTOS", value: cards })}
       />
     </div>
   );
