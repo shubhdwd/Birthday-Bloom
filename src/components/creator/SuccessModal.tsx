@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SparkleIcon, GiftIcon } from "@/components/birthday/EmojiIcons";
 import { CatMascot } from "@/components/birthday/CatMascot";
 import { getSurpriseUrl } from "@/lib/url";
+import { QRCodeShare } from "./QRCodeShare";
 
 interface SuccessModalProps {
   surpriseId: string;
@@ -96,6 +97,11 @@ export function SuccessModal({ surpriseId, deletionPeriod, onClose, onCreateAnot
         <div className="glass-card rounded-2xl px-4 py-3 mb-6 text-sm font-mono text-foreground/70 break-all">
           {link}
         </div>
+
+        {/* QR Code Share Component */}
+        <QRCodeShare url={link} />
+        
+        <div className="mt-6" />
 
         {/* Action buttons */}
         <div className="grid grid-cols-2 gap-3 mb-3">
