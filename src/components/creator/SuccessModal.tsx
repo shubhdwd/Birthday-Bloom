@@ -3,17 +3,19 @@ import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { SparkleIcon, GiftIcon } from "@/components/birthday/EmojiIcons";
 import { CatMascot } from "@/components/birthday/CatMascot";
+import type { CatStyle } from "@/lib/types";
 import { getSurpriseUrl } from "@/lib/url";
 import { QRCodeShare } from "./QRCodeShare";
 
 interface SuccessModalProps {
   surpriseId: string;
   deletionPeriod: number | null;
+  catStyle: CatStyle;
   onClose: () => void;
   onCreateAnother: () => void;
 }
 
-export function SuccessModal({ surpriseId, deletionPeriod, onClose, onCreateAnother }: SuccessModalProps) {
+export function SuccessModal({ surpriseId, deletionPeriod, catStyle, onClose, onCreateAnother }: SuccessModalProps) {
   const [copied, setCopied] = useState(false);
   const link = getSurpriseUrl(surpriseId);
 
@@ -99,7 +101,7 @@ export function SuccessModal({ surpriseId, deletionPeriod, onClose, onCreateAnot
         </div>
 
         {/* QR Code Share Component */}
-        <QRCodeShare url={link} />
+        <QRCodeShare url={link} catStyle={catStyle} />
         
         <div className="mt-6" />
 

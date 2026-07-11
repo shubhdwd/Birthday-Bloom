@@ -277,6 +277,7 @@ export function CreateSurprise() {
         <SuccessModal
           surpriseId={resultId}
           deletionPeriod={form.deletionPeriod}
+          catStyle={form.catStyle}
           onClose={() => setShowSuccess(false)}
           onCreateAnother={() => {
             setShowSuccess(false);
